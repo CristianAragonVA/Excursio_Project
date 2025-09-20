@@ -1,0 +1,10 @@
+streamlit
+pandas
+matplotlib
+mplsoccer
+numpy
+scipy
+seaborn
+pillow
+requests
+networkx

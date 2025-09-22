@@ -68,13 +68,6 @@ if st.session_state.page == "individual":
             y_start = 100 - y_start
             y_end = 100 - y_end
 
-            # Puntos de inicio
-            pitch.scatter(
-                x_start, y_start,
-                edgecolor=color, facecolor=color,
-                s=10, alpha=0.7, ax=ax
-            )
-
             # Flechas (sin comet) y con alpha según tipo de pase
             alpha_val = 0.6 if x['Event'] == 'PB' else 0.2  # menos opacidad en malos
             pitch.arrows(
@@ -390,6 +383,7 @@ elif st.session_state.page == "equipo":
             st.warning(f"No hay pases completados registrados para el partido vs {rival}")
     else:
         st.warning("No hay datos disponibles para el rival seleccionado")
+
 
 
 

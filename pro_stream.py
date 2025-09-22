@@ -61,17 +61,27 @@ if st.session_state.page == "individual":
     def plot_passes(df, ax, pitch):
         for x in df.to_dict(orient="records"):
             x_start, y_start = x['X'], x['Y']  # inicio
-            x_end, y_end = x['X2'], x['Y2'] # fin
+            x_end, y_end = x['X2'], x['Y2']    # fin
             color = 'green' if x['Event'] == 'PB' else 'red'
 
             # Aplicar transformación de coordenadas (invertir arriba/abajo)
             y_start = 100 - y_start
             y_end = 100 - y_end
-            
-            pitch.scatter(x_start, y_start, edgecolor=color, facecolor=color, s=10, alpha=0.7, ax=ax)
-        
-            # Línea/flecha hasta donde termina el pase
-            pitch.lines(x_start, y_start, x_end, y_end, comet=True, color=color, lw=4, ax=ax, alpha=0.3)
+
+            # Puntos de inicio
+            pitch.scatter(
+                x_start, y_start,
+                edgecolor=color, facecolor=color,
+                s=10, alpha=0.7, ax=ax
+            )
+
+            # Flechas (sin comet) y con alpha según tipo de pase
+            alpha_val = 0.6 if x['Event'] == 'PB' else 0.2  # menos opacidad en malos
+            pitch.arrows(
+                x_start, y_start, x_end, y_end,
+                color=color, width=2, headwidth=4,
+                headlength=5, ax=ax, alpha=alpha_val
+            )
 
     # Filtrar pases del jugador seleccionado y limpiar datos
     player_passes = passes_partido[passes_partido['Player'] == player].copy()
@@ -380,5 +390,6 @@ elif st.session_state.page == "equipo":
             st.warning(f"No hay pases completados registrados para el partido vs {rival}")
     else:
         st.warning("No hay datos disponibles para el rival seleccionado")
+
 
 

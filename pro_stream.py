@@ -28,7 +28,7 @@ st.sidebar.markdown("**Analista:** Cristian Aragón")
 
 # Inicializar página si no existe
 if 'page' not in st.session_state:
-    st.session_state.page = "individual"
+    st.session_state.page = "equipo"
 
 # Cargar datos de ambos partidos
 df_italiano = pd.read_csv("sportivo italiano.csv", sep=';')
@@ -76,6 +76,7 @@ if st.session_state.page == "individual":
                 headlength=5, ax=ax, alpha=alpha_val
             )
 
+
     # Filtrar pases del jugador seleccionado y limpiar datos
     player_passes = passes_partido[passes_partido['Player'] == player].copy()
 
@@ -92,10 +93,37 @@ if st.session_state.page == "individual":
     num_correct_passes = player_passes[player_passes['Event'] == 'PB'].shape[0]
     num_incorrect_passes = player_passes[player_passes['Event'] == 'PM'].shape[0]
 
+
     # Crear el plot
     pitch = Pitch(pitch_type='opta')
     fig, ax = pitch.draw(figsize=(6, 4))
     plot_passes(player_passes, ax, pitch)
+
+    # Filtrar todos los eventos del jugador en todos los partidos
+    player_all_events = df[df['Player'] == player].copy()
+
+    # --- Dibujar recuperaciones y pérdidas ---
+    # Filtrar eventos del jugador
+    recuperaciones = player_all_events[player_all_events['Event'] == 'Recuperacion'].copy()
+    perdidas = player_all_events[player_all_events['Event'] == 'Perdida'].copy()
+
+    # Limpiar coordenadas
+    for df_temp in [recuperaciones, perdidas]:
+        df_temp['X'] = pd.to_numeric(df_temp['X'], errors='coerce')
+        df_temp['Y'] = pd.to_numeric(df_temp['Y'], errors='coerce')
+        df_temp.dropna(subset=['X', 'Y'], inplace=True)
+        # Ajustar coordenadas (invertir arriba/abajo)
+        df_temp['Y'] = 100 - df_temp['Y']
+
+    # Graficar recuperaciones (verde) y pérdidas (rojo)
+    pitch.scatter(
+        recuperaciones['X'], recuperaciones['Y'],
+        c="green", s=15, linewidth=0.8, alpha=0.3, ax=ax
+    )
+    pitch.scatter(
+        perdidas['X'], perdidas['Y'],
+        c="red", s=15, linewidth=0.8, alpha=0.2, ax=ax
+    )
 
     # Mostrar estadísticas del partido seleccionado
     st.markdown("---")
@@ -112,9 +140,6 @@ if st.session_state.page == "individual":
     # Estadísticas generales (todos los partidos) - Debajo del campo
     st.markdown("---")
     st.subheader("Estadísticas Generales")
-    
-    # Filtrar todos los eventos del jugador en todos los partidos
-    player_all_events = df[df['Player'] == player].copy()
     
     # Para estadísticas de pases, limpiar datos de coordenadas
     player_all_passes = player_all_events[player_all_events['Event'].isin(['PB', 'PM'])].copy()
@@ -383,6 +408,8 @@ elif st.session_state.page == "equipo":
             st.warning(f"No hay pases completados registrados para el partido vs {rival}")
     else:
         st.warning("No hay datos disponibles para el rival seleccionado")
+
+
 
 
 

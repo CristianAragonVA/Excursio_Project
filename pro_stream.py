@@ -373,7 +373,7 @@ elif st.session_state.page == "equipo":
             # ========================
             # 🔥 Heatmap Zonal de Pases
             # ========================
-            st.markdown("### 🔥 Heatmap Zonal de Pases")
+            st.markdown("### 🔥 Mapa de calor zonal de pases")
 
             # Dibujar Heatmap sobre cancha (3x3)
             pitch = Pitch(pitch_type="opta", line_color="black", pitch_color="white")
@@ -449,6 +449,7 @@ elif st.session_state.page == "equipo":
             st.warning(f"No hay pases completados registrados para el partido vs {rival}")
     else:
         st.warning("No hay datos disponibles para el rival seleccionado")
+
 
 
 

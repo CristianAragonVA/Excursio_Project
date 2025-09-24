@@ -369,6 +369,47 @@ elif st.session_state.page == "equipo":
             
             # Mostrar el gráfico
             st.pyplot(fig)
+
+            # ========================
+            # 🔥 Heatmap Zonal de Pases
+            # ========================
+            st.markdown("### 🔥 Heatmap Zonal de Pases")
+
+            # Dibujar Heatmap sobre cancha (3x3)
+            pitch = Pitch(pitch_type="opta", line_color="black", pitch_color="white")
+            fig, ax = pitch.draw(figsize=(8, 6))
+            heatmap, xedges, yedges = np.histogram2d(
+                passes["X"], passes["Y"], bins=[3, 3], range=[[0, 100], [0, 100]]
+            )
+            pcm = ax.pcolormesh(xedges, yedges, heatmap.T, cmap="Greens", alpha=0.5)
+            fig.colorbar(pcm, ax=ax, shrink=0.7, label="Cantidad de pases")
+            st.pyplot(fig)
+
+            # Función para asignar zona 3x3
+            def asignar_zona(x, y):
+                if x < 33:
+                    col = "Salida"
+                elif x < 66:
+                    col = "Medio"
+                else:
+                    col = "Último tercio"
+                
+                if y < 33:
+                    fila = "Derecha"
+                elif y < 66:
+                    fila = "Centro"
+                else:
+                    fila = "Izquierda"
+                return f"{col} - {fila}"
+
+            # Asignar zona de inicio y fin a cada pase
+            passes["zona_inicio"] = passes.apply(lambda r: asignar_zona(r["X"], r["Y"]), axis=1)
+            passes["zona_fin"] = passes.apply(lambda r: asignar_zona(r["X2"], r["Y2"]), axis=1)
+
+            # Tabla de conteo por zona de inicio
+            zonas_count = passes["zona_inicio"].value_counts().reset_index()
+            zonas_count.columns = ["Zona", "Pases"]
+            st.dataframe(zonas_count, use_container_width=True)
             
             # Estadísticas adicionales
             st.markdown("### Estadísticas del Partido")
@@ -408,6 +449,7 @@ elif st.session_state.page == "equipo":
             st.warning(f"No hay pases completados registrados para el partido vs {rival}")
     else:
         st.warning("No hay datos disponibles para el rival seleccionado")
+
 
 
 
